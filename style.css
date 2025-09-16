@@ -477,3 +477,9 @@ input[type="checkbox"]:checked + .collapse-title:after {
         width: 100%;
     }
 }
+
+/* Ensure desktop view pages use full width of parent */
+.desktop-view .itinerary-page {
+    width: 100% !important;
+    max-width: none !important;
+}
