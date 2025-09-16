@@ -103,14 +103,14 @@ const renderOverview = (data) => {
     const dailyPlanList = dailyPlan.map(day => {
         const count = (day.activities || []).length;
         const activitiesHtml = (day.activities || []).map(getActivityRowHtml).join('');
+        const contentId = `qs-content-${safeText(day.day)}`;
         return `
-        <div class="collapse collapse-plus bg-base-200 rounded-lg">
-            <input type="checkbox" id="collapse-toggle-${safeText(day.day)}" class="hidden" />
-            <label for="collapse-toggle-${safeText(day.day)}" class="collapse-title text-lg font-semibold flex items-center justify-between">
-                <span>Day ${safeText(day.day)}: ${safeText(day.title)}</span>
+        <div class="bg-base-200 rounded-lg border border-gray-200">
+            <button type="button" class="qs-toggle w-full flex items-center justify-between text-left py-3 px-4" data-target="${contentId}">
+                <span class="text-lg font-semibold">Day ${safeText(day.day)}: ${safeText(day.title)}</span>
                 <span class="inline-flex items-center px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">${count} activities <i class="fas fa-chevron-down ml-2 text-gray-400"></i></span>
-            </label>
-            <div class="collapse-content space-y-2">
+            </button>
+            <div id="${contentId}" class="qs-content hidden px-4 pb-4 space-y-2">
                 ${activitiesHtml}
             </div>
         </div>`;
@@ -346,35 +346,24 @@ export const renderItinerary = (itineraryData, isMobile, chatMessages) => {
         });
     });
 
-    // Ensure collapsibles in Quick Daily Summary open/close reliably
-    const setupCollapses = () => {
-        const collapses = bubble.querySelectorAll('.collapse.collapse-plus');
-        collapses.forEach(col => {
-            const input = col.querySelector('input[type="checkbox"]');
-            const content = col.querySelector('.collapse-content');
-            if (!input || !content) return;
-            const apply = () => {
-                if (input.checked) {
-                    content.style.display = 'block';
-                    content.style.maxHeight = content.scrollHeight + 'px';
+    // Setup Quick Daily Summary toggles (no checkbox dependency)
+    const setupSummaryToggles = () => {
+        const toggles = bubble.querySelectorAll('.qs-toggle');
+        toggles.forEach(btn => {
+            const targetId = btn.getAttribute('data-target');
+            const panel = bubble.querySelector(`#${targetId}`);
+            if (!panel) return;
+            btn.addEventListener('click', () => {
+                const isHidden = panel.classList.contains('hidden');
+                if (isHidden) {
+                    panel.classList.remove('hidden');
+                    panel.style.maxHeight = panel.scrollHeight + 'px';
                 } else {
-                    content.style.maxHeight = '0px';
-                    content.style.display = 'none';
+                    panel.style.maxHeight = '0px';
+                    panel.classList.add('hidden');
                 }
-            };
-            // Initialize state
-            apply();
-            // Toggle on change
-            input.addEventListener('change', apply);
-            // Also allow clicking the label to toggle
-            const label = col.querySelector('label.collapse-title');
-            if (label) {
-                label.addEventListener('click', () => {
-                    input.checked = !input.checked;
-                    apply();
-                });
-            }
+            });
         });
     };
-    setupCollapses();
+    setupSummaryToggles();
 };
