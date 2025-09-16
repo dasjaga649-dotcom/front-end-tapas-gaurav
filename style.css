@@ -1,0 +1,478 @@
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  background-color: #f3f4f6;
+  transition: background-color 0.3s ease;
+}
+
+/* Custom scrollbar for chat messages */
+.chat-messages::-webkit-scrollbar {
+  width: 8px;
+}
+.chat-messages::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 10px;
+}
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Main container to hold all content */
+main {
+  height: 100%;
+  padding: 2rem;
+}
+
+/* Base styles for the chat container */
+#chat-container {
+  height: 85vh;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 8px solid #333;
+  border-radius: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Phone and Desktop View */
+.phone-view {
+  width: 90%;
+  max-width: 384px;
+}
+
+.desktop-view {
+  width: 80%;
+  max-width: 1000px;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Transitions and layout helpers */
+.transition-width {
+  transition: width 0.7s ease, border-radius 0.7s ease, box-shadow 0.7s ease, max-width 0.7s ease;
+}
+
+.hide-intro {
+  opacity: 0;
+  transform: translateX(-100%);
+  width: 0;
+  margin-right: 0;
+}
+
+/* Generic style for all carousel cards */
+.travel-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  height: 300px;
+  min-width: 250px;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+.travel-card:hover {
+  transform: translateY(-5px);
+}
+
+.travel-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.travel-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    min-height: 40%;
+    padding: 1rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1));
+    color: white;
+    z-index: 20;
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+
+.travel-card:hover .travel-card-overlay {
+    min-height: 100%;
+}
+
+.travel-card-info-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.75rem;
+    z-index: 30;
+}
+
+/* New class to fix the title position */
+.travel-card-title {
+    position: absolute;
+    bottom: 1rem; /* Adjust this value to position the name at the desired height */
+    left: 1rem;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 25;
+}
+
+/* Modify the .travel-card-details to handle the hover state */
+.travel-card-details {
+    position: absolute;
+    bottom: 1rem;
+    padding: 0 1rem;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    z-index: 25;
+}
+
+/* On hover, fade out the title and reveal the details */
+.travel-card:hover .travel-card-title {
+    opacity: 0;
+}
+
+.travel-card:hover .travel-card-details {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Styles for Icons, Prices, and Ratings */
+.attraction-icon {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 9999px;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+}
+.attraction-icon i {
+  font-size: 1rem;
+  margin-right: 0.25rem;
+}
+
+.attraction-rating {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: gold;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}
+
+/* Specific styling for Flight logos */
+.flight-logo-container {
+  background-color: white;
+  border-radius: 9999px;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+.flight-logo-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 9999px;
+}
+
+/* Utility for markdown lists */
+ul {
+  list-style-type: disc;
+  margin-left: 1.25rem;
+}
+ol {
+  list-style-type: decimal;
+  margin-left: 1.25rem;
+}
+p {
+  margin-bottom: 0.5rem;
+}
+
+/* Custom spinner animation */
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Phone view handling, hide the intro section on small screens */
+@media (max-width: 767px) {
+  #intro-section {
+    display: none;
+  }
+  #chat-container {
+    width: 100%;
+    height: 100vh;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    max-width: none;
+  }
+}
+
+/* Carousel and Filtering Styles */
+.carousel {
+  -webkit-overflow-scrolling: touch;
+}
+.carousel > div {
+  flex: 0 0 auto;
+}
+.snap-center {
+  scroll-snap-align: center;
+}
+
+.type-filter-btn,
+.rating-filter-btn {
+  @apply inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200;
+}
+
+.type-filter-btn.active,
+.rating-filter-btn.active {
+  @apply bg-blue-500 text-white border-blue-600 hover:bg-blue-600;
+}
+
+/* Price range slider styles (for future implementation) */
+input[type="range"] {
+  @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  @apply w-4 h-4 bg-blue-500 rounded-full shadow-lg cursor-pointer appearance-none;
+}
+
+/*------------------------------------------*/
+/* Styles for the main itinerary carousel container */
+.itinerary-carousel {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1rem; /* Adjust gap between cards as needed */
+    padding-bottom: 1rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.itinerary-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+/* Styles for each individual page within the carousel */
+.itinerary-page {
+    flex: none;
+    scroll-snap-align: start;
+    width: 85%; /* Default for mobile */
+    max-width: 384px; /* Matches phone-view max-width */
+    border-radius: 1rem;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: width 0.3s ease, max-width 0.3s ease;
+}
+
+/* Style for the collapsible section of the daily summary */
+.collapse {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.collapse-title {
+    padding: 1rem;
+    cursor: pointer;
+    position: relative;
+    background-color: #f9fafb;
+}
+
+.collapse-content {
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.collapse-plus input[type="checkbox"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.collapse-plus .collapse-title:after {
+    content: '+';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+}
+
+.collapse-plus input[type="checkbox"]:checked ~ .collapse-title:after {
+    content: '−';
+    transform: translateY(-50%);
+}
+
+.collapse-plus input[type="checkbox"]:checked ~ .collapse-content {
+    display: block;
+}
+
+.collapse-content {
+    display: none;
+}
+
+/* Responsive styles for larger screens */
+@media (min-width: 768px) {
+    .itinerary-page {
+        width: 600px;
+        max-width: none;
+    }
+    
+    .desktop-view .itinerary-page {
+        width: 600px;
+        max-width: none;
+    }
+}
+
+/* Styles for the new tabs interface */
+.itinerary-tabs-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.tabs-header {
+    display: flex;
+    justify-content: space-around;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.tabs-header::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #6b7280;
+    white-space: nowrap;
+    transition: color 0.3s ease, border-bottom-color 0.3s ease;
+}
+
+.tab-button.tab-active {
+    color: #1f2937;
+    border-bottom: 2px solid #1f2937;
+    font-weight: 600;
+}
+
+/* Tab Content */
+.itinerary-page {
+    display: none; /* Hide all pages by default */
+    width: 100%;
+}
+
+.itinerary-page.page-active {
+    display: block; /* Show only the active page */
+}
+
+/* ... in your CSS file */
+.collapse-content {
+    /* Set an initial state that hides the content */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out; /* Add a smooth transition */
+    padding-top: 0; /* Remove padding when collapsed */
+    padding-bottom: 0; /* Remove padding when collapsed */
+}
+
+/* When the checkbox is checked, expand the content */
+.collapse-plus input[type="checkbox"]:checked ~ .collapse-content {
+    /* Set a max-height value large enough to fit all content */
+    max-height: 500px;
+    /* Re-add padding to the content */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* New CSS Rule */
+.collapse-title {
+  cursor: pointer;
+  position: relative;
+}
+
+.collapse-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+/* Toggles the visibility of the content when the associated checkbox is checked */
+input[type="checkbox"]:checked + label + .collapse-content {
+  max-height: 500px; /* A large enough value to fit content */
+}
+
+/* Additional styling for the +/− icon */
+.collapse-title:after {
+  content: '+';
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.3s ease;
+}
+
+input[type="checkbox"]:checked + .collapse-title:after {
+  content: '-';
+}
+
+.itinerary-page {
+    /* Remove flex-none and snap-start as this is no longer a carousel */
+    width: 100%; /* Make the page fill its parent container */
+    max-width: none;
+    transition: width 0.3s ease, max-width 0.3s ease;
+}
+
+@media (min-width: 768px) {
+    .itinerary-page {
+        width: 100%;
+    }
+}
