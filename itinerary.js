@@ -20,7 +20,7 @@ const safeText = (val) => {
 
 // Helper function to render a simple card (for activities, flights, hotels)
 const getCardHtml = (item) => {
-    const imageUrl = item.imageLinks && item.imageLinks.length > 0 ? item.imageLinks[0] : imageComingSoon;
+    const imageUrl = (item.imageLinks && item.imageLinks.length > 0 ? item.imageLinks[0] : (item.imagelinks && item.imagelinks[0])) || imageComingSoon;
     const ratingHtml = item.rating ? `<div class="attraction-rating flex items-center space-x-1"><i class="fas fa-star text-yellow-400"></i><span>${item.rating}</span></div>` : '';
     const priceHtml = item.price ? `<div class="attraction-icon bg-gray-900 text-white flex items-center space-x-1"><i class="fas fa-dollar-sign"></i><span>${item.price}</span></div>` : '';
     const name = safeText(item.name);
@@ -43,6 +43,25 @@ const getCardHtml = (item) => {
             </div>
         </div>
     `;
+};
+
+// Small activity row used in Quick Daily Summary
+const getActivityRowHtml = (activity) => {
+    const imageUrl = (activity.imageLinks && activity.imageLinks[0]) || (activity.imagelinks && activity.imagelinks[0]) || imageComingSoon;
+    const name = safeText(activity.name);
+    const description = safeText(activity.description);
+    const rating = safeText(activity.rating);
+    return `
+        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+            <img src="${imageUrl}" alt="${name}" class="w-12 h-12 rounded-md object-cover flex-shrink-0">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-sm font-semibold text-gray-800 truncate">${name}</h4>
+                    ${rating ? `<span class="ml-2 text-xs text-gray-700 flex items-center"><i class="fas fa-star text-yellow-400 mr-1"></i>${rating}</span>` : ''}
+                </div>
+                ${description ? `<p class="text-xs text-gray-500 line-clamp-2">${description}</p>` : ''}
+            </div>
+        </div>`;
 };
 
 // Function to render the overview section
@@ -81,19 +100,21 @@ const renderOverview = (data) => {
     if (checkOut) addBox(checkOut, 'Check-out');
 
     const dailyPlan = Array.isArray(data.dailyPlan) ? data.dailyPlan : [];
-    const dailyPlanList = dailyPlan.map(day => `
-        <div class="collapse collapse-plus bg-base-200">
-    <input type="checkbox" id="collapse-toggle-${day.day}" class="hidden" />
-    <label for="collapse-toggle-${day.day}" class="collapse-title text-xl font-medium">
-        Day ${safeText(day.day)}: ${safeText(day.title)}
-    </label>
-    <div class="collapse-content">
-        <ul class="list-disc list-inside space-y-1">
-            ${(day.activities || []).map(activity => `<li>${safeText(activity.name)}</li>`).join('')}
-        </ul>
-    </div>
-</div>
-    `).join('');
+    const dailyPlanList = dailyPlan.map(day => {
+        const count = (day.activities || []).length;
+        const activitiesHtml = (day.activities || []).map(getActivityRowHtml).join('');
+        return `
+        <div class="collapse collapse-plus bg-base-200 rounded-lg">
+            <input type="checkbox" id="collapse-toggle-${safeText(day.day)}" class="hidden" />
+            <label for="collapse-toggle-${safeText(day.day)}" class="collapse-title text-lg font-semibold flex items-center justify-between">
+                <span>Day ${safeText(day.day)}: ${safeText(day.title)}</span>
+                <span class="inline-flex items-center px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">${count} activities <i class="fas fa-chevron-down ml-2 text-gray-400"></i></span>
+            </label>
+            <div class="collapse-content space-y-2">
+                ${activitiesHtml}
+            </div>
+        </div>`;
+    }).join('');
 
     return `
         <div class="p-6">
