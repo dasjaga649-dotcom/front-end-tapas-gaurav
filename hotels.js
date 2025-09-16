@@ -89,60 +89,57 @@ const renderHotelsInPlace = (filteredData) => {
 const renderFiltersAndSorts = (container, data) => {
     const allAmenities = [...new Set(data.flatMap(hotel => hotel.amenities || []).filter(Boolean))].sort();
     const amenitiesOptionsHtml = allAmenities.map(amenity => `
-        <label class="flex items-center space-x-2 text-gray-700">
-            <input type="checkbox" name="amenity" value="${amenity}" class="form-checkbox h-4 w-4 text-blue-600 rounded">
-            <span>${amenity}</span>
+        <label class="flex items-center gap-2 text-gray-700">
+            <input type="checkbox" name="amenity" value="${amenity}" class="form-checkbox h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+            <span class="text-sm">${amenity}</span>
         </label>
     `).join('');
 
     const filtersHtml = `
-        <div class="p-4">
-            <div class="mb-4">
-                <h4 class="text-lg font-bold mb-2">Filter by Amenities</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-1 max-h-32 overflow-y-auto" id="amenity-filters">
+        <div class="space-y-6">
+            <div>
+                <h4 class="text-base font-semibold mb-3">Filter by Amenities</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="amenity-filters">
                     ${amenitiesOptionsHtml}
                 </div>
             </div>
-            <div class="mb-4">
-                <h4 class="text-lg font-bold mb-2">Filter by Rating</h4>
-                <div class="flex flex-wrap gap-2" id="rating-filters">
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="rating-filter" value="4" class="form-radio h-4 w-4 text-blue-600">
-                        <span>4+ <i class="fas fa-star text-yellow-400"></i></span>
+            <div>
+                <h4 class="text-base font-semibold mb-3">Filter by Rating</h4>
+                <div class="flex flex-wrap gap-4" id="rating-filters">
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="rating-filter" value="4" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">4+ <i class="fas fa-star text-yellow-400"></i></span>
                     </label>
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="rating-filter" value="4.5" class="form-radio h-4 w-4 text-blue-600">
-                        <span>4.5+ <i class="fas fa-star text-yellow-400"></i></span>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="rating-filter" value="4.5" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">4.5+ <i class="fas fa-star text-yellow-400"></i></span>
                     </label>
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="rating-filter" value="5" class="form-radio h-4 w-4 text-blue-600">
-                        <span>5 <i class="fas fa-star text-yellow-400"></i></span>
-                    </label>
-                </div>
-            </div>
-            <div class="mb-4">
-                <h4 class="text-lg font-bold mb-2">Sort</h4>
-                <div class="flex flex-wrap gap-2" id="sort-options">
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="sort-option" value="price-asc" class="form-radio h-4 w-4 text-blue-600">
-                        <span>Price (Low to High)</span>
-                    </label>
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="sort-option" value="price-desc" class="form-radio h-4 w-4 text-blue-600">
-                        <span>Price (High to Low)</span>
-                    </label>
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="sort-option" value="rating-desc" class="form-radio h-4 w-4 text-blue-600">
-                        <span>Rating (High to Low)</span>
-                    </label>
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="sort-option" value="rating-asc" class="form-radio h-4 w-4 text-blue-600">
-                        <span>Rating (Low to High)</span>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="rating-filter" value="5" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">5 <i class="fas fa-star text-yellow-400"></i></span>
                     </label>
                 </div>
             </div>
-            <div class="flex justify-end">
-                <button id="apply-filters-btn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">Apply Filters</button>
+            <div>
+                <h4 class="text-base font-semibold mb-3">Sort</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="sort-options">
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="sort-option" value="price-asc" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">Price (Low to High)</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="sort-option" value="price-desc" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">Price (High to Low)</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="sort-option" value="rating-desc" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">Rating (High to Low)</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="sort-option" value="rating-asc" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">Rating (Low to High)</span>
+                    </label>
+                </div>
             </div>
         </div>
     `;
@@ -197,11 +194,20 @@ export const renderHotels = (data, isMobile, chatMessages) => {
         <div id="hotels-container" class="carousel flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4">
             ${data.map(getCardHtml).join('')}
         </div>
-        <div class="filter-modal absolute inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-none max-h-full overflow-y-auto relative">
-                <button class="close-modal absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl font-bold">×</button>
-                <h3 class="text-xl font-bold p-4 border-b">Filters & Sorts</h3>
-                <div id="filter-modal-content"></div>
+        <div class="filter-modal absolute inset-0 bg-black/50 z-50 hidden">
+            <div class="modal-panel w-full h-full p-3 sm:p-4">
+                <div class="bg-white rounded-2xl shadow-xl w-full h-full overflow-hidden flex flex-col">
+                    <div class="modal-header sticky top-0 flex items-center justify-between px-4 py-3 border-b bg-white">
+                        <h3 class="text-lg font-semibold">Filters & Sorts</h3>
+                        <button class="close-modal text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none">×</button>
+                    </div>
+                    <div class="modal-body flex-1 overflow-y-auto px-4 py-4" id="filter-modal-content"></div>
+                    <div class="modal-footer sticky bottom-0 px-4 py-3 border-t bg-white">
+                        <div class="flex justify-end">
+                            <button id="apply-filters-btn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">Apply Filters</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     `;
