@@ -1,6 +1,14 @@
 // HOTELS FILE
 const imageComingSoon = "https://t4.ftcdn.net/jpg/07/91/22/59/360_F_791225926_MUEPuko0xgjKvWeAHGPdErQHY6X2ZJ1m.jpg";
 
+// Utility to safely print values (avoid null/undefined/"null")
+const safeText = (val) => {
+    if (val === null || val === undefined) return '';
+    const s = String(val).trim();
+    if (s === '' || s.toLowerCase() === 'null' || s.toLowerCase() === 'undefined') return '';
+    return s;
+};
+
 const getAmenityIcon = (amenity) => {
     const iconMap = {
         "Hot tub": "fas fa-hot-tub",
@@ -38,22 +46,24 @@ const getCardHtml = (hotel) => {
         </span>
     `).join('');
 
+    const price = safeText(hotel.price);
+    const rating = safeText(hotel.rating);
+    const name = safeText(hotel.name);
+    const website = hotel.link || hotel.website || hotel.url || '';
+
+    const priceHtml = price ? `<div class="attraction-icon bg-gray-900 text-white flex items-center"><i class="fas fa-dollar-sign"></i><span>${price}</span></div>` : '';
+    const ratingHtml = rating ? `<div class="attraction-rating flex items-center space-x-1"><span>${rating}</span><i class="fas fa-star text-yellow-400"></i></div>` : '';
+
     return `
         <div class="travel-card flex-none snap-center">
-            <img class="travel-card-image" src="${imageUrl}" alt="${hotel.name}">
+            <img class="travel-card-image" src="${imageUrl}" alt="${name}">
             <div class="travel-card-info-top">
-                <div class="attraction-icon bg-gray-900 text-white flex items-center">
-                    <i class="fas fa-dollar-sign"></i>
-                    <span>${hotel.price}</span>
-                </div>
-                <div class="attraction-rating flex items-center space-x-1">
-                    <span>${hotel.rating}</span>
-                    <i class="fas fa-star text-yellow-400"></i>
-                </div>
+                ${priceHtml}
+                ${ratingHtml}
             </div>
             <div class="travel-card-title text-white">
                 <h4 class="text-xl font-bold flex items-center space-x-2">
-                    <span>${hotel.name}</span>
+                    <span>${name}</span>
                     ${hotel.location?.lat ? `<a href="https://www.google.com/maps?q=${hotel.location.lat},${hotel.location.lon}" target="_blank" class="text-blue-300 hover:text-blue-500"><i class="fas fa-map-marker-alt"></i></a>` : ''}
                 </h4>
             </div>
@@ -62,7 +72,7 @@ const getCardHtml = (hotel) => {
                     <div class="flex flex-wrap gap-2">
                         ${amenitiesHtml}
                     </div>
-                    <a href="#" target="_blank" class="text-blue-300 hover:underline text-sm font-medium mt-2 block">Visit Website</a>
+                    ${website ? `<a href="${website}" target="_blank" class="text-blue-300 hover:underline text-sm font-medium mt-2 block">Visit Website</a>` : ''}
                 </div>
             </div>
         </div>
@@ -187,8 +197,8 @@ export const renderHotels = (data, isMobile, chatMessages) => {
         <div id="hotels-container" class="carousel flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4">
             ${data.map(getCardHtml).join('')}
         </div>
-        <div class="filter-modal fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto relative">
+        <div class="filter-modal absolute inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-none max-h-full overflow-y-auto relative">
                 <button class="close-modal absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl font-bold">×</button>
                 <h3 class="text-xl font-bold p-4 border-b">Filters & Sorts</h3>
                 <div id="filter-modal-content"></div>
@@ -198,7 +208,7 @@ export const renderHotels = (data, isMobile, chatMessages) => {
 
     const bubble = document.createElement('div');
     bubble.className = `flex justify-start my-4 ${isMobile ? '' : 'w-full'}`;
-    bubble.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-md w-full">${mainHtml}</div>`;
+    bubble.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-md w-full relative">${mainHtml}</div>`;
     chatMessages.appendChild(bubble);
 
     const filterModalContent = bubble.querySelector('#filter-modal-content');
