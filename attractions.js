@@ -28,7 +28,7 @@ const getCardHtml = (attraction) => {
             <div class="travel-card-title text-white">
                 <h4 class="text-xl font-bold flex items-center space-x-2">
                     <span>${attraction.name}</span>
-                    ${attraction.location?.lat ? `<a href="http://googleusercontent.com/maps.google.com/3{attraction.location.lat},${attraction.location.lon}" target="_blank" class="text-blue-300 hover:text-blue-500"><i class="fas fa-map-marker-alt"></i></a>` : ''}
+                    ${attraction.location?.lat ? `<a href="https://www.google.com/maps?q=${attraction.location.lat},${attraction.location.lon}" target="_blank" class="text-blue-300 hover:text-blue-500"><i class="fas fa-map-marker-alt"></i></a>` : ''}
                 </h4>
             </div>
             <div class="travel-card-overlay">
@@ -164,7 +164,7 @@ export const renderAttractions = (data, isMobile, chatMessages) => {
 
     const bubble = document.createElement('div');
     bubble.className = `flex justify-start my-4 ${isMobile ? '' : 'w-full'}`;
-    bubble.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-md w-full max-w-[95%]">${mainHtml}</div>`;
+    bubble.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-md w-full">${mainHtml}</div>`;
     chatMessages.appendChild(bubble);
 
     const filterModalContent = bubble.querySelector('#filter-modal-content');

@@ -1,6 +1,14 @@
 // HOTELS FILE
 const imageComingSoon = "https://t4.ftcdn.net/jpg/07/91/22/59/360_F_791225926_MUEPuko0xgjKvWeAHGPdErQHY6X2ZJ1m.jpg";
 
+// Utility to safely print values (avoid null/undefined/"null")
+const safeText = (val) => {
+    if (val === null || val === undefined) return '';
+    const s = String(val).trim();
+    if (s === '' || s.toLowerCase() === 'null' || s.toLowerCase() === 'undefined') return '';
+    return s;
+};
+
 const getAmenityIcon = (amenity) => {
     const iconMap = {
         "Hot tub": "fas fa-hot-tub",
@@ -38,23 +46,25 @@ const getCardHtml = (hotel) => {
         </span>
     `).join('');
 
+    const price = safeText(hotel.price);
+    const rating = safeText(hotel.rating);
+    const name = safeText(hotel.name);
+    const website = hotel.link || hotel.website || hotel.url || '';
+
+    const priceHtml = price ? `<div class="attraction-icon bg-gray-900 text-white flex items-center"><i class="fas fa-dollar-sign"></i><span>${price}</span></div>` : '';
+    const ratingHtml = rating ? `<div class="attraction-rating flex items-center space-x-1"><span>${rating}</span><i class="fas fa-star text-yellow-400"></i></div>` : '';
+
     return `
         <div class="travel-card flex-none snap-center">
-            <img class="travel-card-image" src="${imageUrl}" alt="${hotel.name}">
+            <img class="travel-card-image" src="${imageUrl}" alt="${name}">
             <div class="travel-card-info-top">
-                <div class="attraction-icon bg-gray-900 text-white flex items-center">
-                    <i class="fas fa-dollar-sign"></i>
-                    <span>${hotel.price}</span>
-                </div>
-                <div class="attraction-rating flex items-center space-x-1">
-                    <span>${hotel.rating}</span>
-                    <i class="fas fa-star text-yellow-400"></i>
-                </div>
+                ${priceHtml}
+                ${ratingHtml}
             </div>
             <div class="travel-card-title text-white">
                 <h4 class="text-xl font-bold flex items-center space-x-2">
-                    <span>${hotel.name}</span>
-                    ${hotel.location?.lat ? `<a href="http://googleusercontent.com/maps.google.com/3{hotel.location.lat},${hotel.location.lon}" target="_blank" class="text-blue-300 hover:text-blue-500"><i class="fas fa-map-marker-alt"></i></a>` : ''}
+                    <span>${name}</span>
+                    ${hotel.location?.lat ? `<a href="https://www.google.com/maps?q=${hotel.location.lat},${hotel.location.lon}" target="_blank" class="text-blue-300 hover:text-blue-500"><i class="fas fa-map-marker-alt"></i></a>` : ''}
                 </h4>
             </div>
             <div class="travel-card-overlay">
@@ -62,7 +72,7 @@ const getCardHtml = (hotel) => {
                     <div class="flex flex-wrap gap-2">
                         ${amenitiesHtml}
                     </div>
-                    <a href="#" target="_blank" class="text-blue-300 hover:underline text-sm font-medium mt-2 block">Visit Website</a>
+                    ${website ? `<a href="${website}" target="_blank" class="text-blue-300 hover:underline text-sm font-medium mt-2 block">Visit Website</a>` : ''}
                 </div>
             </div>
         </div>
@@ -79,60 +89,57 @@ const renderHotelsInPlace = (filteredData) => {
 const renderFiltersAndSorts = (container, data) => {
     const allAmenities = [...new Set(data.flatMap(hotel => hotel.amenities || []).filter(Boolean))].sort();
     const amenitiesOptionsHtml = allAmenities.map(amenity => `
-        <label class="flex items-center space-x-2 text-gray-700">
-            <input type="checkbox" name="amenity" value="${amenity}" class="form-checkbox h-4 w-4 text-blue-600 rounded">
-            <span>${amenity}</span>
+        <label class="flex items-center gap-2 text-gray-700">
+            <input type="checkbox" name="amenity" value="${amenity}" class="form-checkbox h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+            <span class="text-sm">${amenity}</span>
         </label>
     `).join('');
 
     const filtersHtml = `
-        <div class="p-4">
-            <div class="mb-4">
-                <h4 class="text-lg font-bold mb-2">Filter by Amenities</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-1 max-h-32 overflow-y-auto" id="amenity-filters">
+        <div class="space-y-6">
+            <div>
+                <h4 class="text-base font-semibold mb-3">Filter by Amenities</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="amenity-filters">
                     ${amenitiesOptionsHtml}
                 </div>
             </div>
-            <div class="mb-4">
-                <h4 class="text-lg font-bold mb-2">Filter by Rating</h4>
-                <div class="flex flex-wrap gap-2" id="rating-filters">
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="rating-filter" value="4" class="form-radio h-4 w-4 text-blue-600">
-                        <span>4+ <i class="fas fa-star text-yellow-400"></i></span>
+            <div>
+                <h4 class="text-base font-semibold mb-3">Filter by Rating</h4>
+                <div class="flex flex-wrap gap-4" id="rating-filters">
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="rating-filter" value="4" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">4+ <i class="fas fa-star text-yellow-400"></i></span>
                     </label>
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="rating-filter" value="4.5" class="form-radio h-4 w-4 text-blue-600">
-                        <span>4.5+ <i class="fas fa-star text-yellow-400"></i></span>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="rating-filter" value="4.5" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">4.5+ <i class="fas fa-star text-yellow-400"></i></span>
                     </label>
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="rating-filter" value="5" class="form-radio h-4 w-4 text-blue-600">
-                        <span>5 <i class="fas fa-star text-yellow-400"></i></span>
-                    </label>
-                </div>
-            </div>
-            <div class="mb-4">
-                <h4 class="text-lg font-bold mb-2">Sort</h4>
-                <div class="flex flex-wrap gap-2" id="sort-options">
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="sort-option" value="price-asc" class="form-radio h-4 w-4 text-blue-600">
-                        <span>Price (Low to High)</span>
-                    </label>
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="sort-option" value="price-desc" class="form-radio h-4 w-4 text-blue-600">
-                        <span>Price (High to Low)</span>
-                    </label>
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="sort-option" value="rating-desc" class="form-radio h-4 w-4 text-blue-600">
-                        <span>Rating (High to Low)</span>
-                    </label>
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="radio" name="sort-option" value="rating-asc" class="form-radio h-4 w-4 text-blue-600">
-                        <span>Rating (Low to High)</span>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="rating-filter" value="5" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">5 <i class="fas fa-star text-yellow-400"></i></span>
                     </label>
                 </div>
             </div>
-            <div class="flex justify-end">
-                <button id="apply-filters-btn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">Apply Filters</button>
+            <div>
+                <h4 class="text-base font-semibold mb-3">Sort</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="sort-options">
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="sort-option" value="price-asc" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">Price (Low to High)</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="sort-option" value="price-desc" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">Price (High to Low)</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="sort-option" value="rating-desc" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">Rating (High to Low)</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="radio" name="sort-option" value="rating-asc" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm">Rating (Low to High)</span>
+                    </label>
+                </div>
             </div>
         </div>
     `;
@@ -187,18 +194,27 @@ export const renderHotels = (data, isMobile, chatMessages) => {
         <div id="hotels-container" class="carousel flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4">
             ${data.map(getCardHtml).join('')}
         </div>
-        <div class="filter-modal fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto relative">
-                <button class="close-modal absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl font-bold">×</button>
-                <h3 class="text-xl font-bold p-4 border-b">Filters & Sorts</h3>
-                <div id="filter-modal-content"></div>
+        <div class="filter-modal absolute inset-0 bg-black/50 z-50 hidden">
+            <div class="modal-panel w-full h-full p-3 sm:p-4">
+                <div class="bg-white rounded-2xl shadow-xl w-full h-full overflow-hidden flex flex-col">
+                    <div class="modal-header sticky top-0 flex items-center justify-between px-4 py-3 border-b bg-white">
+                        <h3 class="text-lg font-semibold">Filters & Sorts</h3>
+                        <button class="close-modal text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none">×</button>
+                    </div>
+                    <div class="modal-body flex-1 overflow-y-auto px-4 py-4" id="filter-modal-content"></div>
+                    <div class="modal-footer sticky bottom-0 px-4 py-3 border-t bg-white">
+                        <div class="flex justify-end">
+                            <button id="apply-filters-btn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">Apply Filters</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     `;
 
     const bubble = document.createElement('div');
     bubble.className = `flex justify-start my-4 ${isMobile ? '' : 'w-full'}`;
-    bubble.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-md w-full max-w-[95%]">${mainHtml}</div>`;
+    bubble.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-md w-full relative">${mainHtml}</div>`;
     chatMessages.appendChild(bubble);
 
     const filterModalContent = bubble.querySelector('#filter-modal-content');
