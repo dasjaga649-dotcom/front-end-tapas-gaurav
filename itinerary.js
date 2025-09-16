@@ -3,9 +3,19 @@ const imageComingSoon = "https://t4.ftcdn.net/jpg/07/91/22/59/360_F_791225926_MU
 
 // Helper function to format the dates
 const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return '';
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return '';
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    return d.toLocaleDateString(undefined, options);
+};
+
+// Safely convert possibly null/undefined/string "null" values to displayable text
+const safeText = (val) => {
+    if (val === null || val === undefined) return '';
+    const s = String(val).trim();
+    if (s === '' || s.toLowerCase() === 'null' || s.toLowerCase() === 'undefined') return '';
+    return s;
 };
 
 // Helper function to render a simple card (for activities, flights, hotels)
@@ -13,20 +23,22 @@ const getCardHtml = (item) => {
     const imageUrl = item.imageLinks && item.imageLinks.length > 0 ? item.imageLinks[0] : imageComingSoon;
     const ratingHtml = item.rating ? `<div class="attraction-rating flex items-center space-x-1"><i class="fas fa-star text-yellow-400"></i><span>${item.rating}</span></div>` : '';
     const priceHtml = item.price ? `<div class="attraction-icon bg-gray-900 text-white flex items-center space-x-1"><i class="fas fa-dollar-sign"></i><span>${item.price}</span></div>` : '';
+    const name = safeText(item.name);
+    const description = safeText(item.description);
 
     return `
         <div class="travel-card flex-none snap-center">
-            <img class="travel-card-image" src="${imageUrl}" alt="${item.name}">
+            <img class="travel-card-image" src="${imageUrl}" alt="${name}">
             <div class="travel-card-info-top">
                 ${priceHtml}
                 ${ratingHtml}
             </div>
             <div class="travel-card-title text-white">
-                <h4 class="text-xl font-bold">${item.name}</h4>
+                <h4 class="text-xl font-bold">${name}</h4>
             </div>
             <div class="travel-card-overlay">
                 <div class="travel-card-details text-gray-200">
-                    <p class="text-sm line-clamp-3">${item.description}</p>
+                    ${description ? `<p class="text-sm line-clamp-3">${description}</p>` : ''}
                 </div>
             </div>
         </div>
@@ -35,19 +47,49 @@ const getCardHtml = (item) => {
 
 // Function to render the overview section
 const renderOverview = (data) => {
-    const { destination, title, summary, stats } = data.overview;
-    const checkIn = formatDate(stats.checkInDate);
-    const checkOut = formatDate(stats.checkOutDate);
+    const overview = data.overview || {};
+    const { title, summary, stats = {} } = overview;
 
-    const dailyPlanList = data.dailyPlan.map(day => `
+    const statsBoxes = [];
+    const addBox = (value, label) => {
+        const v = safeText(value);
+        if (v !== '') {
+            statsBoxes.push(`
+                <div class="flex-1 min-w-[120px] bg-gray-100 p-3 rounded-lg">
+                    <h5 class="text-xl font-bold">${v}</h5>
+                    <p class="text-xs text-gray-500">${label}</p>
+                </div>
+            `);
+        }
+    };
+
+    if (typeof stats.durationInDays === 'number' && isFinite(stats.durationInDays)) {
+        addBox(stats.durationInDays, 'Days');
+    } else if (safeText(stats.durationInDays)) {
+        addBox(safeText(stats.durationInDays), 'Days');
+    }
+
+    if (typeof stats.placesVisited === 'number' && isFinite(stats.placesVisited)) {
+        addBox(stats.placesVisited, 'Places Visited');
+    } else if (safeText(stats.placesVisited)) {
+        addBox(safeText(stats.placesVisited), 'Places Visited');
+    }
+
+    const checkIn = formatDate(stats.checkInDate);
+    if (checkIn) addBox(checkIn, 'Check-in');
+    const checkOut = formatDate(stats.checkOutDate);
+    if (checkOut) addBox(checkOut, 'Check-out');
+
+    const dailyPlan = Array.isArray(data.dailyPlan) ? data.dailyPlan : [];
+    const dailyPlanList = dailyPlan.map(day => `
         <div class="collapse collapse-plus bg-base-200">
-    <input type="checkbox" id="collapse-toggle-${day.day}" class="hidden" /> 
+    <input type="checkbox" id="collapse-toggle-${day.day}" class="hidden" />
     <label for="collapse-toggle-${day.day}" class="collapse-title text-xl font-medium">
-        Day ${day.day}: ${day.title}
+        Day ${safeText(day.day)}: ${safeText(day.title)}
     </label>
-    <div class="collapse-content"> 
+    <div class="collapse-content">
         <ul class="list-disc list-inside space-y-1">
-            ${day.activities.map(activity => `<li>${activity.name}</li>`).join('')}
+            ${(day.activities || []).map(activity => `<li>${safeText(activity.name)}</li>`).join('')}
         </ul>
     </div>
 </div>
@@ -55,45 +97,26 @@ const renderOverview = (data) => {
 
     return `
         <div class="p-6">
-            <h2 class="text-2xl font-bold mb-2 text-gray-800">${title}</h2>
-            <p class="text-sm text-gray-600 mb-4">${summary}</p>
-            <div class="flex flex-wrap gap-4 text-center mb-6">
-                <div class="flex-1 min-w-[120px] bg-gray-100 p-3 rounded-lg">
-                    <h5 class="text-xl font-bold">${stats.durationInDays}</h5>
-                    <p class="text-xs text-gray-500">Days</p>
-                </div>
-                <div class="flex-1 min-w-[120px] bg-gray-100 p-3 rounded-lg">
-                    <h5 class="text-xl font-bold">${stats.placesVisited}</h5>
-                    <p class="text-xs text-gray-500">Places Visited</p>
-                </div>
-                ${stats.checkInDate && `
-                    <div class="flex-1 min-w-[120px] bg-gray-100 p-3 rounded-lg">
-                        <h5 class="text-xl font-bold">${checkIn}</h5>
-                        <p class="text-xs text-gray-500">Check-in</p>
-                    </div>
-                `}
-                ${stats.checkOutDate && `
-                    <div class="flex-1 min-w-[120px] bg-gray-100 p-3 rounded-lg">
-                        <h5 class="text-xl font-bold">${checkOut}</h5>
-                        <p class="text-xs text-gray-500">Check-out</p>
-                    </div>
-                `}
-            </div>
+            <h2 class="text-2xl font-bold mb-2 text-gray-800">${safeText(title)}</h2>
+            ${safeText(summary) ? `<p class="text-sm text-gray-600 mb-4">${safeText(summary)}</p>` : ''}
+            ${statsBoxes.length ? `<div class="flex flex-wrap gap-4 text-center mb-6">${statsBoxes.join('')}</div>` : ''}
+            ${dailyPlan.length ? `
             <h3 class="text-xl font-bold mb-2 text-gray-800">Quick Daily Summary</h3>
             <div class="space-y-2">
                 ${dailyPlanList}
-            </div>
+            </div>` : ''}
         </div>
     `;
 };
 
 // Function to render the daily plan
 const renderDailyPlan = (dailyPlan) => {
-    const dailyCards = dailyPlan.map(day => `
+    const days = Array.isArray(dailyPlan) ? dailyPlan : [];
+    const dailyCards = days.map(day => `
         <div class="p-6 border-b border-gray-200 last:border-b-0">
-            <h3 class="text-lg font-bold mb-2 text-gray-800">Day ${day.day}: ${day.title}</h3>
+            <h3 class="text-lg font-bold mb-2 text-gray-800">Day ${safeText(day.day)}: ${safeText(day.title)}</h3>
             <div class="carousel flex overflow-x-auto snap-x snap-mandatory space-x-4 pb-4">
-                ${day.activities.map(getCardHtml).join('')}
+                ${(day.activities || []).map(getCardHtml).join('')}
             </div>
         </div>
     `).join('');
