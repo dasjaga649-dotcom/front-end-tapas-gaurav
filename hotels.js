@@ -54,7 +54,7 @@ const getCardHtml = (hotel) => {
             <div class="travel-card-title text-white">
                 <h4 class="text-xl font-bold flex items-center space-x-2">
                     <span>${hotel.name}</span>
-                    ${hotel.location?.lat ? `<a href="http://googleusercontent.com/maps.google.com/3{hotel.location.lat},${hotel.location.lon}" target="_blank" class="text-blue-300 hover:text-blue-500"><i class="fas fa-map-marker-alt"></i></a>` : ''}
+                    ${hotel.location?.lat ? `<a href="https://www.google.com/maps?q=${hotel.location.lat},${hotel.location.lon}" target="_blank" class="text-blue-300 hover:text-blue-500"><i class="fas fa-map-marker-alt"></i></a>` : ''}
                 </h4>
             </div>
             <div class="travel-card-overlay">

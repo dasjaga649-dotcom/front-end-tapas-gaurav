@@ -73,8 +73,11 @@ const processMessage = (jsonResponse) => {
     // Regular expression to find and remove the placeholders
     const placeholderRegex = /\[(flightData|hotelData|attractionsData|itineraryData)\]/g;
 
+    // Ensure text is a string before operating on it
+    const text = typeof data.text === 'string' ? data.text : '';
+
     // Remove the placeholders from the text
-    const cleanedText = data.text ? data.text.replace(placeholderRegex, '').trim() : '';
+    const cleanedText = text ? text.replace(placeholderRegex, '').trim() : '';
 
     // First, render the text part if it exists and is not empty after cleaning
     if (cleanedText) {
@@ -83,11 +86,11 @@ const processMessage = (jsonResponse) => {
 
     // Then, render the cards based on the presence of data
     if (data.dbData || data.itineraryData) {
-        if (data.text.includes('[flightData]') && data.dbData) {
+        if (text.includes('[flightData]') && data.dbData) {
             renderFlights(data.dbData, !isDesktopView, chatMessages);
-        } else if (data.text.includes('[hotelData]') && data.dbData) {
+        } else if (text.includes('[hotelData]') && data.dbData) {
             renderHotels(data.dbData, !isDesktopView, chatMessages);
-        } else if (data.text.includes('[attractionsData]') && data.dbData) {
+        } else if (text.includes('[attractionsData]') && data.dbData) {
             renderAttractions(data.dbData, !isDesktopView, chatMessages);
         } else if (data.itineraryData) {
             renderItinerary(data.itineraryData, !isDesktopView, chatMessages);
