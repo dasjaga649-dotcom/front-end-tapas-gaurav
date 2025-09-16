@@ -345,4 +345,36 @@ export const renderItinerary = (itineraryData, isMobile, chatMessages) => {
             document.getElementById(targetId).classList.add('page-active');
         });
     });
+
+    // Ensure collapsibles in Quick Daily Summary open/close reliably
+    const setupCollapses = () => {
+        const collapses = bubble.querySelectorAll('.collapse.collapse-plus');
+        collapses.forEach(col => {
+            const input = col.querySelector('input[type="checkbox"]');
+            const content = col.querySelector('.collapse-content');
+            if (!input || !content) return;
+            const apply = () => {
+                if (input.checked) {
+                    content.style.display = 'block';
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                } else {
+                    content.style.maxHeight = '0px';
+                    content.style.display = 'none';
+                }
+            };
+            // Initialize state
+            apply();
+            // Toggle on change
+            input.addEventListener('change', apply);
+            // Also allow clicking the label to toggle
+            const label = col.querySelector('label.collapse-title');
+            if (label) {
+                label.addEventListener('click', () => {
+                    input.checked = !input.checked;
+                    apply();
+                });
+            }
+        });
+    };
+    setupCollapses();
 };
